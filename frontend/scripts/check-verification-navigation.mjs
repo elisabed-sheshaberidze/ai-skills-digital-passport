@@ -35,8 +35,15 @@ try {
   const config = JSON.parse(await fs.readFile(new URL('../vercel.json', import.meta.url), 'utf8'))
   assert.deepEqual(config.rewrites, [
     { source: '/api/:path*', destination: 'https://ai-skills-digital-passport.onrender.com/api/:path*' },
-    { source: '/(.*)', destination: '/index.html' },
+    { source: '/((?!api(?:/|$)).*)', destination: '/index.html' },
   ], 'API requests must reach Render before the SPA fallback handles deep links')
+  const fallback = new RegExp('^' + config.rewrites[1].source + '$')
+  for (const route of ['/api', '/api/', '/api/accounts/csrf/', '/api/verification/passport/reference/']) {
+    assert.equal(fallback.test(route), false, `${route} must never resolve to the React index`)
+  }
+  for (const route of ['/', '/verify', '/verify/reference', '/student/login', '/admin/login', '/api-guide']) {
+    assert.equal(fallback.test(route), true, `${route} retains React deep-link fallback`)
+  }
   const preview = await runtime()
   assert.equal((await preview.ssrLoadModule('/src/demo/mode.ts')).demoMode, true)
   const html = new JSDOM(await render(preview, '/verify'))
