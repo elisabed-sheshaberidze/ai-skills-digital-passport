@@ -34,7 +34,7 @@ async function render(server, route) {
 try {
   const config = JSON.parse(await fs.readFile(new URL('../vercel.json', import.meta.url), 'utf8'))
   assert.deepEqual(config.rewrites, [
-    { source: '/api/:path*', destination: 'https://btudigitalpassport.onrender.com/api/:path*' },
+    { source: '/api/:path*', destination: 'https://ai-skills-digital-passport.onrender.com/api/:path*' },
     { source: '/(.*)', destination: '/index.html' },
   ], 'API requests must reach Render before the SPA fallback handles deep links')
   const preview = await runtime()
